@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    
+    <style>
+    body {
+      overflow  : hidden;
+      padding   : 0;
+      margin    : 0;
+      background-color: #E1E1E1;
+    }
+    
+    #container {
+      width   : 100%;
+      height    : 100%;
+      overflow  : hidden;
+      padding   : 0;
+      margin    : 0;
+      -webkit-user-select : none;
+      -moz-user-select  : none;
+    }
+
+    #info {
+      position  : absolute;
+      top   : 0px;
+      width   : 100%;
+      padding   : 5px;
+      text-align  : center;
+    }
+    
+    </style>
+  </head>
+  <body>
+
+    <div id="container"></div>
+     <div id="info">
+      <strong>Deltax:</strong> <span id="joystick1DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick1DebugY"></span>
+    </div>
+
+   <!-- Scripts loaded here -->
+  <script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+  <script type="text/javascript" src="kinetic-v4.6.0.min.js"></script>
+  <script type="text/javascript" src="jsJoystick.js"></script>
+
+   <script type="text/javascript">
+    $('#container').jsJoystick({
+      callBackFunc: function(evt){
+        debugJoystick('joystick1',evt);
+      }
+    });
+
+     var debugJoystick = function(selectorID,evt) {
+      $('#'+selectorID+'DebugX').html(evt.deltaX + "("+evt.deltaXPercent+" %)"); 
+      $('#'+selectorID+'DebugY').html(evt.deltaY + "("+evt.deltaYPercent+" %)"); 
+    }
+  </script>  
+
+  </body>
+</html>
