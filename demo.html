@@ -5,9 +5,14 @@
   <style type="text/css">
     
     .joystick {
-    	width: 200px;
+    	width: 250px;
     	height: 250px;
     	border: 1px solid #FF0000;
+    }
+
+    .joystick_size2 {
+      width: 350px;
+      height: 350px;
     }
 
   </style>
@@ -23,6 +28,15 @@
       <strong>Deltax:</strong> <span id="joystick1DebugX"></span>
       <strong>Deltay:</strong> <span id="joystick1DebugY"></span>
     </div>
+
+    <h2>Resize parent container</h2>
+    <div id="joystick4" class="joystick"></div>
+    <div>
+      <strong>Deltax:</strong> <span id="joystick4DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick4DebugY"></span>
+    </div>
+    <button id="resizeContainerBtn">Resize Container</button>
+
 
     <h2>Horizontal only</h2>
     <div id="joystick2" class="joystick"></div>
@@ -65,6 +79,15 @@
       callBackFunc: function(evt){
         debugJoystick('joystick3',evt);
       }
+    });
+
+    $('#joystick4').jsJoystick({
+      callBackFunc: function(evt){
+        debugJoystick('joystick4',evt);
+      }
+    });
+    $('#resizeContainerBtn').click(function() {
+      $('#joystick4').toggleClass('joystick_size2'); 
     });
 
     var debugJoystick = function(selectorID,evt) {

@@ -12,29 +12,59 @@
             intervalTimer: 1/30 * 1000,
             callBackFunc: undefined
         }, options);
-        
 
         if(options.callBackFunc == undefined) {
           alert("You must set the callBackFunc in the options !");
           return;
         }
 
-        var width = this.width();
-        var height = this.height();
-        var canvasCenterX = width / 2;
-        var canvasCenterY = height / 2;
-        
+        var that = this;
+
+        var width = null;
+        var height = null;
+        var canvasCenterX = null;
+        var canvasCenterY = null;
+        var xBoundingBoxMax = null;
+        var yBoundingBoxMax = null;
+        // one percent from the center of the canvas
+        var canvasXOnePercent = null;
+        var canvasYOnePercent = null;
+        var initialized = false;
+
         var dragHandleRadius = 40;
 
-        // one percent from the center of the canvas
-        var canvasXOnePercent = (canvasCenterX - dragHandleRadius) / 100;
-        var canvasYOnePercent = (canvasCenterY - dragHandleRadius) / 100;
-
-        
-        var xBoundingBoxMax = width - dragHandleRadius;
-        var yBoundingBoxMax = height - dragHandleRadius;
-
         var canvasId = 'jsJoystickCanvas';
+
+        var checkAndSetValues = function() {
+
+          if(initialized == false || width != that.width() ||  height != that.height()) {
+
+            width = that.width();
+            height = that.height();
+            canvasCenterX = width / 2;
+            canvasCenterY = height / 2;
+
+            // one percent from the center of the canvas
+            canvasXOnePercent = (canvasCenterX - dragHandleRadius) / 100;
+            canvasYOnePercent = (canvasCenterY - dragHandleRadius) / 100;
+            xBoundingBoxMax = width - dragHandleRadius;
+            yBoundingBoxMax = height - dragHandleRadius;
+
+            // we have to resize the kinetic stuff to  
+            if(initialized == true) {
+              stage.setWidth(width);
+              stage.setHeight(height);
+              startPoint.setPosition(canvasCenterX,canvasCenterY);
+              dragHandle.setPosition(canvasCenterX,canvasCenterY);
+              stage.draw();      
+            }
+          }
+        }
+
+        checkAndSetValues();
+        initialized = true;
+        
+
 
         // the kinetic stage
          var stage = new Kinetic.Stage({
@@ -51,7 +81,7 @@
         var startPoint = new Kinetic.Circle({
           x: canvasCenterX,
           y: canvasCenterY,
-          radius: 45,
+          radius: dragHandleRadius+5,
           //fill: 'red',
           stroke: 'red',
           strokeWidth: 5
@@ -113,6 +143,9 @@
 
       // start polling the x and y delta from the joystick and put the data into the callback function
       setInterval(function(){
+
+        checkAndSetValues(); 
+
         var dragHandlePos = dragHandle.getPosition();
 
         // calc the delta from the center
