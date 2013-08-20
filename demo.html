@@ -5,7 +5,7 @@
   <style type="text/css">
     
     .joystick {
-    	width: 250px;
+    	width: 200px;
     	height: 250px;
     	border: 1px solid #FF0000;
     }
@@ -49,26 +49,28 @@
   <script type="text/javascript">
     $('#joystick1').jsJoystick({
       callBackFunc: function(evt){
-        $('#joystick1DebugX').html(evt.deltaX); 
-        $('#joystick1DebugY').html(evt.deltaY);
+        debugJoystick('joystick1',evt);
       }
     });
     
    $('#joystick2').jsJoystick({
      dragMode: "horizontal",
      callBackFunc: function(evt){
-        $('#joystick2DebugX').html(evt.deltaX); 
-        $('#joystick2DebugY').html(evt.deltaY);
+        debugJoystick('joystick2',evt);
       }
    });
 
     $('#joystick3').jsJoystick({
       dragMode: "vertical",
       callBackFunc: function(evt){
-        $('#joystick3DebugX').html(evt.deltaX); 
-        $('#joystick3DebugY').html(evt.deltaY);
+        debugJoystick('joystick3',evt);
       }
     });
+
+    var debugJoystick = function(selectorID,evt) {
+      $('#'+selectorID+'DebugX').html(evt.deltaX + "("+evt.deltaXPercent+" %)"); 
+      $('#'+selectorID+'DebugY').html(evt.deltaY + "("+evt.deltaYPercent+" %)"); 
+    }
   </script>
 
 </html>

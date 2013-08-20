@@ -23,8 +23,14 @@
         var height = this.height();
         var canvasCenterX = width / 2;
         var canvasCenterY = height / 2;
-
+        
         var dragHandleRadius = 40;
+
+        // one percent from the center of the canvas
+        var canvasXOnePercent = (canvasCenterX - dragHandleRadius) / 100;
+        var canvasYOnePercent = (canvasCenterY - dragHandleRadius) / 100;
+
+        
         var xBoundingBoxMax = width - dragHandleRadius;
         var yBoundingBoxMax = height - dragHandleRadius;
 
@@ -45,10 +51,10 @@
         var startPoint = new Kinetic.Circle({
           x: canvasCenterX,
           y: canvasCenterY,
-          radius: 50,
-          fill: 'red',
-          stroke: 'black',
-          strokeWidth: 4
+          radius: 45,
+          //fill: 'red',
+          stroke: 'red',
+          strokeWidth: 5
         });
 
       // add the shape to the layer
@@ -60,7 +66,8 @@
           radius: dragHandleRadius,
           fill: 'blue',
           stroke: 'black',
-          strokeWidth: 4,
+          strokeWidth: 1,
+          opacity: 0.9,
           draggable: true,
           dragBoundFunc: function(pos) {
              
@@ -112,7 +119,23 @@
         var xDelta = canvasCenterX - dragHandlePos.x;
         var yDelta = canvasCenterY - dragHandlePos.y;
 
-        options.callBackFunc({deltaX:  xDelta, deltaY :  yDelta}); 
+        var xDeltaPercent = 0;
+        if(canvasCenterX > dragHandlePos.x) {
+          xDeltaPercent = (canvasCenterX - dragHandlePos.x) / canvasXOnePercent;
+        }   
+        if(canvasCenterX < dragHandlePos.x) {
+          xDeltaPercent = (dragHandlePos.x - canvasCenterX) / canvasXOnePercent * -1;
+        }
+
+        var yDeltaPercent = 0;
+        if(canvasCenterY > dragHandlePos.y) {
+          yDeltaPercent = (canvasCenterY - dragHandlePos.y) / canvasYOnePercent;
+        }   
+        if(canvasCenterY < dragHandlePos.y) {
+          yDeltaPercent = (dragHandlePos.y - canvasCenterY) / canvasYOnePercent * -1;
+        }
+
+        options.callBackFunc({deltaX:  xDelta, deltaY :  yDelta, deltaXPercent: xDeltaPercent, deltaYPercent: yDeltaPercent}); 
         
 
       }, options.intervalTimer);
