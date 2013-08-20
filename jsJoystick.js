@@ -9,6 +9,8 @@
         var settings = $.extend({
             debug: false,
             dragMode: "normal",
+            drageShape : "circle",
+            startMode : "center",
             intervalTimer: 1/30 * 1000,
             callBackFunc: undefined
         }, options);
@@ -20,15 +22,23 @@
 
         var that = this;
 
+        // height and width of the container holding the joystick
         var width = null;
         var height = null;
+
+        // center of the canvas
         var canvasCenterX = null;
         var canvasCenterY = null;
+        
+        // bounding box vars
         var xBoundingBoxMax = null;
         var yBoundingBoxMax = null;
+        
         // one percent from the center of the canvas
         var canvasXOnePercent = null;
         var canvasYOnePercent = null;
+        
+        // if evrything is initialized
         var initialized = false;
 
         var dragHandleRadius = 40;
@@ -63,16 +73,34 @@
 
         checkAndSetValues();
         initialized = true;
-        
-
-
-        // the kinetic stage
+       
+         // the kinetic stage
          var stage = new Kinetic.Stage({
            // TODO: can we use the jquery element here ?	
            container: this.attr('id'),
            width: width,
            height: height
-         }); 
+         });
+
+         // register events when we are in touch mode  
+         if(settings.startMode == "touch") {
+          stage.on('mousedown touchstart', function(evt) {
+            var xDragStartPosition = (evt.type == "mousedown") ? stage.getMousePosition().x : stage.getTouchPosition().x; 
+            var yDragStartPosition = (evt.type == "mousedown") ? stage.getMousePosition().y : stage.getTouchPosition().y; 
+            startPoint.setPosition(xDragStartPosition,yDragStartPosition);
+            dragHandle.setPosition(xDragStartPosition,yDragStartPosition);
+            startPoint.show();
+            dragHandle.show();
+            dragHandle.fire(evt.type);
+            stage.draw();    
+          });
+
+          stage.on('mouseup touchend', function(evt) {
+            dragHandle.fire(evt.type);
+            startPoint.hide();
+            dragHandle.hide();
+          });
+         } 
 
         // layer to draw on 
         var layer = new Kinetic.Layer();
@@ -84,11 +112,9 @@
           radius: dragHandleRadius+5,
           //fill: 'red',
           stroke: 'red',
-          strokeWidth: 5
+          strokeWidth: 5,
+          visible: (settings.startMode != "touch")
         });
-
-      // add the shape to the layer
-      layer.add(startPoint);
 
       var dragHandle = new Kinetic.Circle({
       	  x: canvasCenterX,
@@ -99,16 +125,17 @@
           strokeWidth: 1,
           opacity: 0.9,
           draggable: true,
+          visible: (settings.startMode != "touch"), 
           dragBoundFunc: function(pos) {
              
-            if(options.dragMode == "vertical") {
+            if(settings.dragMode == "vertical") {
               pos.x = this.getAbsolutePosition().x;  
             } else {
               if(pos.x < dragHandleRadius) pos.x = dragHandleRadius;
               else if(pos.x > xBoundingBoxMax) pos.x = xBoundingBoxMax;              
             }  
 
-            if(options.dragMode == "horizontal") {
+            if(settings.dragMode == "horizontal") {
               pos.y = this.getAbsolutePosition().y;               
             } else {
               if(pos.y < dragHandleRadius) pos.y = dragHandleRadius;
@@ -136,7 +163,10 @@
         stage.draw();
       });
 
+      
+      layer.add(startPoint);
       layer.add(dragHandle);
+      
 
       // add the layer to the stage
       stage.add(layer);
@@ -168,10 +198,10 @@
           yDeltaPercent = (dragHandlePos.y - canvasCenterY) / canvasYOnePercent * -1;
         }
 
-        options.callBackFunc({deltaX:  xDelta, deltaY :  yDelta, deltaXPercent: xDeltaPercent, deltaYPercent: yDeltaPercent}); 
+        settings.callBackFunc({deltaX:  xDelta, deltaY :  yDelta, deltaXPercent: xDeltaPercent, deltaYPercent: yDeltaPercent}); 
         
 
-      }, options.intervalTimer);
+      }, settings.intervalTimer);
     };
  
 }( jQuery ));

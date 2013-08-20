@@ -29,6 +29,13 @@
       <strong>Deltay:</strong> <span id="joystick1DebugY"></span>
     </div>
 
+    <h2>Toch to start</h2>
+    <div id="joystick5" class="joystick"></div>
+    <div>
+      <strong>Deltax:</strong> <span id="joystick5DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick5DebugY"></span>
+    </div>
+
     <h2>Resize parent container</h2>
     <div id="joystick4" class="joystick"></div>
     <div>
@@ -67,7 +74,7 @@
       }
     });
     
-   $('#joystick2').jsJoystick({
+   /*$('#joystick2').jsJoystick({
      dragMode: "horizontal",
      callBackFunc: function(evt){
         debugJoystick('joystick2',evt);
@@ -88,6 +95,13 @@
     });
     $('#resizeContainerBtn').click(function() {
       $('#joystick4').toggleClass('joystick_size2'); 
+    });*/
+
+    $('#joystick5').jsJoystick({
+      startMode : "touch",
+      callBackFunc: function(evt){
+        debugJoystick('joystick5',evt);
+      }
     });
 
     var debugJoystick = function(selectorID,evt) {
