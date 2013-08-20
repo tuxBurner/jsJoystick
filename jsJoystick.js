@@ -11,7 +11,6 @@
             dragMode: "normal",
             drageShape : "circle",
             startMode : "center",
-            intervalTimer: 1/30 * 1000,
             callBackFunc: undefined,
             dragHandleRadius: 40
         }, options);
@@ -78,8 +77,8 @@
         }
 
         checkAndSetValues();
-        initialized = true;
-       
+        initialized = true;  
+
          // the kinetic stage
          var stage = new Kinetic.Stage({
            // TODO: can we use the jquery element here ?	
@@ -92,7 +91,8 @@
          if(settings.startMode == "touch") {
           stage.on('mousedown touchstart', function(evt) {
             dragStartPositionX = (evt.type == "mousedown") ? stage.getMousePosition().x : stage.getTouchPosition().x; 
-            dragStartPositionY = (evt.type == "mousedown") ? stage.getMousePosition().y : stage.getTouchPosition().y; 
+            dragStartPositionY = (evt.type == "mousedown") ? stage.getMousePosition().y : stage.getTouchPosition().y;
+            dragStartPositionY = canvasCenterY? stage.getMousePosition().y : stage.getTouchPosition().y; 
             startPoint.setPosition(dragStartPositionX,dragStartPositionY);
             dragHandle.setPosition(dragStartPositionX,dragStartPositionY);
             startPoint.show();
@@ -102,6 +102,9 @@
           });
 
           stage.on('mouseup touchend', function(evt) {
+            // reset points
+            dragStartPositionX = canvasCenterX;
+            dragStartPositionY = canvasCenterY;
             dragHandle.fire(evt.type);
             startPoint.hide();
             dragHandle.hide();
@@ -122,6 +125,7 @@
           visible: (settings.startMode != "touch")
         });
 
+       
       var dragHandle = new Kinetic.Circle({
       	  x: canvasCenterX,
           y: canvasCenterY,
@@ -167,6 +171,11 @@
         // position the handle back to the center
         dragHandle.setPosition(canvasCenterX,canvasCenterY);
         stage.draw();
+        callCallBack();
+      });
+
+      dragHandle.on('dragmove', function(evt) {
+        callCallBack();
       });
 
       
@@ -177,11 +186,8 @@
       // add the layer to the stage
       stage.add(layer);
 
-      // start polling the x and y delta from the joystick and put the data into the callback function
-      setInterval(function(){
-
-        checkAndSetValues(); 
-
+      // calls the call back
+      var callCallBack = function() {
         var dragHandlePos = dragHandle.getPosition();
 
         // calc the delta from the center
@@ -208,9 +214,13 @@
         }
 
         settings.callBackFunc({deltaX:  xDelta, deltaY :  yDelta, deltaXPercent: xDeltaPercent, deltaYPercent: yDeltaPercent}); 
-        
+      }; 
 
-      }, settings.intervalTimer);
+
+      // check if the container resized
+      setInterval(function(){
+        checkAndSetValues(); 
+      }, 1/30 * 1000);
     };
  
 }( jQuery ));
