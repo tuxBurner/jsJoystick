@@ -8,9 +8,16 @@
         // This is the easiest way to have default options.
         var settings = $.extend({
             debug: false,
-            dragMode: "xy"
+            dragMode: "normal",
+            intervalTimer: 1/30 * 1000,
+            callBackFunc: undefined
         }, options);
         
+
+        if(options.callBackFunc == undefined) {
+          alert("You must set the callBackFunc in the options !");
+          return;
+        }
 
         var width = this.width();
         var height = this.height();
@@ -56,27 +63,26 @@
           strokeWidth: 4,
           draggable: true,
           dragBoundFunc: function(pos) {
-              
-             //var xPosition = pos.x;
-             if(pos.x < dragHandleRadius) pos.x = dragHandleRadius;
-             else if(pos.x > xBoundingBoxMax) pos.x = xBoundingBoxMax;
+             
+            if(options.dragMode == "vertical") {
+              pos.x = this.getAbsolutePosition().x;  
+            } else {
+              if(pos.x < dragHandleRadius) pos.x = dragHandleRadius;
+              else if(pos.x > xBoundingBoxMax) pos.x = xBoundingBoxMax;              
+            }  
 
-             if(pos.y < dragHandleRadius) pos.y = dragHandleRadius;
-             else if(pos.y > yBoundingBoxMax) pos.y = yBoundingBoxMax;
-
+            if(options.dragMode == "horizontal") {
+              pos.y = this.getAbsolutePosition().y;               
+            } else {
+              if(pos.y < dragHandleRadius) pos.y = dragHandleRadius;
+              else if(pos.y > yBoundingBoxMax) pos.y = yBoundingBoxMax;
+            }  
 
             return {
                 y: pos.y,
                 x: pos.x
-
-             /*
-               x: this.getAbsolutePosition().x,
-            y: pos.y*/
-
-              /*x: pos.x,
-              y: this.getAbsolutePosition().y*/
+            }
           }
-        }
       });
 
       // add cursor styling
@@ -95,10 +101,21 @@
 
       layer.add(dragHandle);
 
-      
+      // add the layer to the stage
+      stage.add(layer);
 
-        // add the layer to the stage
-        stage.add(layer);
+      // start polling the x and y delta from the joystick and put the data into the callback function
+      setInterval(function(){
+        var dragHandlePos = dragHandle.getPosition();
+
+        // calc the delta from the center
+        var xDelta = canvasCenterX - dragHandlePos.x;
+        var yDelta = canvasCenterY - dragHandlePos.y;
+
+        options.callBackFunc({deltaX:  xDelta, deltaY :  yDelta}); 
+        
+
+      }, options.intervalTimer);
     };
  
 }( jQuery ));

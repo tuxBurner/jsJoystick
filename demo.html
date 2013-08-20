@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <style type="text/css">
     
-    #joystick1 {
+    .joystick {
     	width: 250px;
     	height: 250px;
     	border: 1px solid #FF0000;
@@ -17,8 +17,25 @@
 
     <h1>Welcome to the joystick demo page</h1>
 
-    <div id="joystick1">
+    <h2>Normal one</h2> 
+    <div id="joystick1" class="joystick"></div>
+    <div>
+      <strong>Deltax:</strong> <span id="joystick1DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick1DebugY"></span>
+    </div>
 
+    <h2>Horizontal only</h2>
+    <div id="joystick2" class="joystick"></div>
+    <div>
+      <strong>Deltax:</strong> <span id="joystick2DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick2DebugY"></span>
+    </div>
+
+    <h2>Vertical only</h2>
+    <div id="joystick3" class="joystick"></div>
+    <div>
+      <strong>Deltax:</strong> <span id="joystick3DebugX"></span>
+      <strong>Deltay:</strong> <span id="joystick3DebugY"></span>
     </div>
 
   </body> 
@@ -30,7 +47,28 @@
   <script type="text/javascript" src="jsJoystick.js"></script>
 
   <script type="text/javascript">
-    $('#joystick1').jsJoystick({debug: true});
+    $('#joystick1').jsJoystick({
+      callBackFunc: function(evt){
+        $('#joystick1DebugX').html(evt.deltaX); 
+        $('#joystick1DebugY').html(evt.deltaY);
+      }
+    });
+    
+   $('#joystick2').jsJoystick({
+     dragMode: "horizontal",
+     callBackFunc: function(evt){
+        $('#joystick2DebugX').html(evt.deltaX); 
+        $('#joystick2DebugY').html(evt.deltaY);
+      }
+   });
+
+    $('#joystick3').jsJoystick({
+      dragMode: "vertical",
+      callBackFunc: function(evt){
+        $('#joystick3DebugX').html(evt.deltaX); 
+        $('#joystick3DebugY').html(evt.deltaY);
+      }
+    });
   </script>
 
 </html>
