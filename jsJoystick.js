@@ -12,7 +12,8 @@
             drageShape : "circle",
             startMode : "center",
             intervalTimer: 1/30 * 1000,
-            callBackFunc: undefined
+            callBackFunc: undefined,
+            dragHandleRadius: 40
         }, options);
 
         if(options.callBackFunc == undefined) {
@@ -37,11 +38,13 @@
         // one percent from the center of the canvas
         var canvasXOnePercent = null;
         var canvasYOnePercent = null;
+
+        // drag start positions
+        var dragStartPositionX = null;
+        var dragStartPositionY = null;
         
         // if evrything is initialized
         var initialized = false;
-
-        var dragHandleRadius = 40;
 
         var canvasId = 'jsJoystickCanvas';
 
@@ -54,11 +57,14 @@
             canvasCenterX = width / 2;
             canvasCenterY = height / 2;
 
+            dragStartPositionX = canvasCenterX; 
+            dragStartPositionY = canvasCenterY;
+
             // one percent from the center of the canvas
-            canvasXOnePercent = (canvasCenterX - dragHandleRadius) / 100;
-            canvasYOnePercent = (canvasCenterY - dragHandleRadius) / 100;
-            xBoundingBoxMax = width - dragHandleRadius;
-            yBoundingBoxMax = height - dragHandleRadius;
+            canvasXOnePercent = (canvasCenterX - settings.dragHandleRadius) / 100;
+            canvasYOnePercent = (canvasCenterY - settings.dragHandleRadius) / 100;
+            xBoundingBoxMax = width - settings.dragHandleRadius;
+            yBoundingBoxMax = height - settings.dragHandleRadius;
 
             // we have to resize the kinetic stuff to  
             if(initialized == true) {
@@ -85,10 +91,10 @@
          // register events when we are in touch mode  
          if(settings.startMode == "touch") {
           stage.on('mousedown touchstart', function(evt) {
-            var xDragStartPosition = (evt.type == "mousedown") ? stage.getMousePosition().x : stage.getTouchPosition().x; 
-            var yDragStartPosition = (evt.type == "mousedown") ? stage.getMousePosition().y : stage.getTouchPosition().y; 
-            startPoint.setPosition(xDragStartPosition,yDragStartPosition);
-            dragHandle.setPosition(xDragStartPosition,yDragStartPosition);
+            dragStartPositionX = (evt.type == "mousedown") ? stage.getMousePosition().x : stage.getTouchPosition().x; 
+            dragStartPositionY = (evt.type == "mousedown") ? stage.getMousePosition().y : stage.getTouchPosition().y; 
+            startPoint.setPosition(dragStartPositionX,dragStartPositionY);
+            dragHandle.setPosition(dragStartPositionX,dragStartPositionY);
             startPoint.show();
             dragHandle.show();
             dragHandle.fire(evt.type);
@@ -109,7 +115,7 @@
         var startPoint = new Kinetic.Circle({
           x: canvasCenterX,
           y: canvasCenterY,
-          radius: dragHandleRadius+5,
+          radius: settings.dragHandleRadius+5,
           //fill: 'red',
           stroke: 'red',
           strokeWidth: 5,
@@ -119,7 +125,7 @@
       var dragHandle = new Kinetic.Circle({
       	  x: canvasCenterX,
           y: canvasCenterY,
-          radius: dragHandleRadius,
+          radius: settings.dragHandleRadius,
           fill: 'blue',
           stroke: 'black',
           strokeWidth: 1,
@@ -131,14 +137,14 @@
             if(settings.dragMode == "vertical") {
               pos.x = this.getAbsolutePosition().x;  
             } else {
-              if(pos.x < dragHandleRadius) pos.x = dragHandleRadius;
+              if(pos.x < settings.dragHandleRadius) pos.x = settings.dragHandleRadius;
               else if(pos.x > xBoundingBoxMax) pos.x = xBoundingBoxMax;              
             }  
 
             if(settings.dragMode == "horizontal") {
               pos.y = this.getAbsolutePosition().y;               
             } else {
-              if(pos.y < dragHandleRadius) pos.y = dragHandleRadius;
+              if(pos.y < settings.dragHandleRadius) pos.y = settings.dragHandleRadius;
               else if(pos.y > yBoundingBoxMax) pos.y = yBoundingBoxMax;
             }  
 
@@ -179,23 +185,26 @@
         var dragHandlePos = dragHandle.getPosition();
 
         // calc the delta from the center
-        var xDelta = canvasCenterX - dragHandlePos.x;
-        var yDelta = canvasCenterY - dragHandlePos.y;
+        var xDelta = dragStartPositionX - dragHandlePos.x;
+        var yDelta = dragStartPositionY - dragHandlePos.y;
 
         var xDeltaPercent = 0;
-        if(canvasCenterX > dragHandlePos.x) {
-          xDeltaPercent = (canvasCenterX - dragHandlePos.x) / canvasXOnePercent;
-        }   
-        if(canvasCenterX < dragHandlePos.x) {
-          xDeltaPercent = (dragHandlePos.x - canvasCenterX) / canvasXOnePercent * -1;
-        }
-
         var yDeltaPercent = 0;
-        if(canvasCenterY > dragHandlePos.y) {
-          yDeltaPercent = (canvasCenterY - dragHandlePos.y) / canvasYOnePercent;
-        }   
-        if(canvasCenterY < dragHandlePos.y) {
-          yDeltaPercent = (dragHandlePos.y - canvasCenterY) / canvasYOnePercent * -1;
+
+        if(settings.startMode != "touch") {
+          if(canvasCenterX > dragHandlePos.x ) {
+            xDeltaPercent = (canvasCenterX - dragHandlePos.x) / canvasXOnePercent;
+          }   
+          if(canvasCenterX < dragHandlePos.x) {
+            xDeltaPercent = (dragHandlePos.x - canvasCenterX) / canvasXOnePercent * -1;
+          }
+
+          if(canvasCenterY > dragHandlePos.y) {
+            yDeltaPercent = (canvasCenterY - dragHandlePos.y) / canvasYOnePercent;
+          }   
+          if(canvasCenterY < dragHandlePos.y) {
+            yDeltaPercent = (dragHandlePos.y - canvasCenterY) / canvasYOnePercent * -1;
+          }
         }
 
         settings.callBackFunc({deltaX:  xDelta, deltaY :  yDelta, deltaXPercent: xDeltaPercent, deltaYPercent: yDeltaPercent}); 
